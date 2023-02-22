@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Aspect Ratio Clamp Query Example</title>
+    <style>
+      html {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+      }
+
+      body {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 100%;
+        line-height: 1.4;
+        color: #000;
+        margin: 0;
+        padding: 4rem;
+        height: 100vh;
+        width: 100vw;
+        background: transparent;
+        overflow: hidden;
+      }
+      body > .frame-wrapper {
+        position: relative;
+      }
+      body > .frame-wrapper > iframe {
+        box-sizing: border-box;
+        display: block;
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        border: solid 0.125rem #000;
+        background-color: white;
+        width: 40rem;
+        height: 30rem;
+        resize: both;
+        overflow: auto;
+      }
+      body > .frame-wrapper > .hint {
+        display: block;
+        position: absolute;
+        bottom: -2rem;
+        right: -8rem;
+        padding: 0.5rem 1rem;
+        background-color: #000;
+        color: #fff;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame-wrapper">
+      <iframe width="640" height="480" src="include.html" resize></iframe>
+      <aside class="hint">⮴ Resize Me!</aside>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Aspect Ratio Clamp Query Example</title>
+    <script src="aspect-ratio-css-query-enabler.js"></script>
+    <script>
+      initializeAspectRatioCssQueryEnabler();
+    </script>
+    <style>
+      :root {
+        --aspect-ratio: var(--ar, 1);
+        --tolerance: 1.125;
+        --threshold: calc((var(--tolerance) - var(--aspect-ratio)) * 100000);
+        --clamp-query: calc(var(--threshold) * 1rem);
+      }
+
+      html {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+      }
+      body {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 100%;
+        line-height: 1.4;
+        color: #000;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        background: transparent;
+        overflow: hidden;
+      }
+      body > .main-panel {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 2rem 2.5rem;
+        height: 100vh;
+        width: 100vw;
+        background-color: white;
+      }
+      .primary-headline {
+        font-family: Helvetica, Arial, sans-serif;
+        font-weight: bold;
+        font-size: clamp(8vh, var(--clamp-query), 3.5rem);
+        text-transform: uppercase;
+        line-height: 1.4;
+        text-align: center;
+        color: #08a;
+        margin: 0;
+        margin-top: clamp(-8vw, var(--clamp-query), 0);
+        padding: min(4vw, 1.5vh) 0;
+      }
+      .subline {
+        font-size: clamp(7.25vh, var(--clamp-query), 3.1rem);
+        line-height: 1.4;
+        text-align: center;
+        color: #0a4;
+        padding: min(4vw, 1.5vh) 0;
+        margin: 0;
+      }
+      .example-figure {
+        display: block;
+        box-sizing: border-box;
+        position: relative;
+        width: clamp(24vh, var(--clamp-query), 24vw);
+        height: clamp(24vh, var(--clamp-query), 24vw);
+        padding: clamp(2vh, var(--clamp-query), 2vw);
+        margin: clamp(2vh, var(--clamp-query), 1vw) 0;
+        text-align: center;
+        border-radius: 52%;
+        background-color: #08a;
+      }
+      .example-figure > .example-image {
+        display: block;
+        margin: 0;
+        position: relative;
+        z-index: 0;
+        width: clamp(20vh, var(--clamp-query), 20vw);
+        height: clamp(20vh, var(--clamp-query), 20vw);
+      }
+      .example-figure > .example-caption {
+        box-sizing: border-box;
+        position: absolute;
+        left: clamp(-6vh, var(--clamp-query), -2vh);
+        bottom: clamp(-6vh, var(--clamp-query), -2vh);
+        z-index: 1;
+        text-align: center;
+        font-family: Helvetica, Arial, sans-serif;
+        font-weight: 700;
+        font-size: clamp(6vh, var(--clamp-query), 4vw);
+        line-height: clamp(10vh, var(--clamp-query), 6vw);
+        padding: clamp(1vh, var(--clamp-query), 1vw);
+        height: clamp(12vh, var(--clamp-query), 8vw);
+        width: clamp(12vh, var(--clamp-query), 8vw);
+      }
+      .example-figure > .example-caption > a {
+        display: block;
+        border-radius: 52%;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        background-color: #0a4;
+        color: #fff;
+        text-decoration: none;
+      }
+      .example-figure > .example-caption > a:hover,
+      .example-figure > .example-caption > a:focus {
+        background-color: #0c4;
+        text-decoration: underline;
+      }
+      @media screen and (max-width: 840px) {
+        .primary-headline {
+          margin-top: clamp(0, var(--clamp-query), -24vw);
+          font-size: clamp(min(12vh, 8vw), var(--clamp-query), 8vw);
+          letter-spacing: clamp(1vh, var(--clamp-query), 0.75vw);
+        }
+        .subline {
+          font-size: clamp(min(10vh, 5vw), var(--clamp-query), 5vw);
+        }
+      }
+    </style>
+  </head>
+  <body class="uninitialized">
+    <main class="main-panel">
+      <h1 class="primary-headline">Example:</h1>
+
+      <h2 class="subline">Aspect Ratio Clamp Queries</h2>
+
+      <figure class="example-figure">
+        <img
+          class="example-image"
+          width="128"
+          alt="Javascript badge"
+          src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Javascript_badge.svg"
+        />
+        <figcaption class="example-caption">
+          <a
+            title="Nikotaf, CC BY-SA 4.0 &lt;https://creativecommons.org/licenses/by-sa/4.0&gt;, via Wikimedia Commons"
+            href="https://commons.wikimedia.org/wiki/File:Javascript_badge.svg"
+            >CC</a
+          >
+        </figcaption>
+      </figure>
+    </main>
+  </body>
+</html>
