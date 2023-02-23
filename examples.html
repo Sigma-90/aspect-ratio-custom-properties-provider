@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Aspect Ratio Clamp Query Example</title>
+    <script src="aspect-ratio-css-query-enabler.js"></script>
+    <script type="text/javascript">
+      initializeAspectRatioCssQueryEnabler(20, true, 0.25);
+    </script>
+    <style>
+      html {
+        padding: 0;
+        margin: 0;
+        background: transparent;
+      }
+      body {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 100%;
+        line-height: 1.4;
+        color: #000;
+        margin: 0;
+        padding: 2rem;
+        min-height: 100vh;
+        width: 100vw;
+        background: transparent;
+        overflow: auto;
+      }
+      .example-panel {
+        position: relative;
+        box-sizing: border-box;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        border: dashed 0.0625rem #424242;
+        padding: 2rem;
+        width: clamp(0%, var(--clamp-query-select-max-when-portrait), 100%);
+        min-width: 12%;
+        max-width: 100%;
+        resize: both;
+        overflow: auto;
+      }
+      .example-panel[style] {
+        flex-grow: 0;
+      }
+      .panel-reset-button {
+        display: none;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        background-color: #0a4;
+        color: #fff;
+        border-radius: 0.5rem;
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        z-index: 2;
+        transform-origin: 50% 50%;
+        cursor: pointer;
+      }
+      .panel-reset-button:hover,
+      .panel-reset-button:focus {
+        background-color: #0c4;
+        transform: scale(0.98);
+      }
+      .panel-reset-button:hover:active,
+      .panel-reset-button:focus:active {
+        background-color: #0c4;
+        transform: scale(0.92) translateY(0.125rem);
+      }
+      .example-panel[style] > .panel-reset-button:not(.uninitialized) {
+        display: block;
+      }
+      .frame-wrapper {
+        position: relative;
+      }
+      .resizer {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        resize: both;
+        overflow: hidden;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+        border: solid 0.125rem #000;
+        background-color: white;
+        max-width: 100%;
+        width: 40rem;
+        height: 30rem;
+      }
+      .resized {
+        flex-grow: 1;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .hint {
+        display: block;
+        position: absolute;
+        z-index: 0;
+        bottom: -2rem;
+        right: -8rem;
+        padding: 0.5rem 1rem;
+        background-color: #000;
+        color: #fff;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="example-panel">
+      <button type="button" class="panel-reset-button uninitialized">Reset Resizing</button>
+      <div class="frame-wrapper">
+        <div class="resizer">
+          <iframe
+            class="resized"
+            width="640"
+            height="480"
+            src="iframe-aspect-ratio-demo.html"
+          ></iframe>
+        </div>
+        <aside class="hint">⮴ Resize Me</aside>
+      </div>
+    </div>
+    <div class="example-panel">
+      <button type="button" class="panel-reset-button uninitialized">Reset Resizing</button>
+      <div class="frame-wrapper">
+        <div class="resizer">
+          <iframe
+            class="resized"
+            width="640"
+            height="480"
+            src="iframe-screen-ratio-demo.html"
+          ></iframe>
+        </div>
+        <aside class="hint">⮴ Resize Me</aside>
+      </div>
+    </div>
+    <script type="text/javascript">
+      try {
+        Array.from(document.querySelectorAll('.panel-reset-button')).forEach((btn) => {
+          btn.classList.remove('uninitialized');
+          btn.addEventListener('click', (e) => {
+            e.target.parentElement.removeAttribute('style');
+          });
+        });
+      } catch(e) {
+        console.warn('Apparently you are using a very outdated browser. May I suggest that you do something about that?');
+      }
+    </script>
+  </body>
+</html>
