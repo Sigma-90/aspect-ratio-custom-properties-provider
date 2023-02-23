@@ -28,6 +28,8 @@ function generateAspectRatioCustomPropertyRefresher(appRootRef) {
   return function () {
     const vhVal = window.innerHeight;
     const vwVal = window.innerWidth;
+    appRootRef.style.setProperty('--ratio-min-multiplier', '-1rem');
+    appRootRef.style.setProperty('--ratio-max-multiplier', '1rem');
     appRootRef.style.setProperty('--vh', vhVal * 0.01 + 'px');
     appRootRef.style.setProperty('--vw', vwVal * 0.01 + 'px');
     appRootRef.style.setProperty('--sr', vwVal / vhVal + '');
@@ -62,11 +64,11 @@ function initializeAspectRatioCssQueryEnabler(
     }
     // Using a template string here messes with some minifiers, so we concatenate it the classic way.
     const rootStyle =
-      ":root {\n  --aspect-ratio: var(--ar, 1);\n  --screen-ratio: var(--sr, 1);\n  --tolerance: " +
+      ":root {\n  --aspect-ratio: var(--ar, 1);\n  --screen-ratio: var(--sr, 1);\n  --ratio-multiplier-min: var(--ratio-min-multiplier, 1rem);  --ratio-multiplier-max: var(--ratio-max-multiplier, -1rem);  --tolerance: " +
       tolerance +
       ";\n  --aspect-ratio-threshold: calc((var(--tolerance) + 1 - var(--aspect-ratio)) * 100000);\n  --screen-ratio-threshold: calc((var(--tolerance) + 1 - var(--screen-ratio)) * 100000);\n" +
-      "  --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * 1rem);\n  --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * -1rem);\n" +
-      "  --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * 1rem);\n  --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * -1rem);\n" +
+      "  --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-max));\n  --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-min));\n" +
+      "  --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-max));\n  --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-min));\n" +
       "  --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);\n  --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);\n}";
     const styleBlock = document.createElement('style');
     styleBlock.setAttribute('type', 'text/css');

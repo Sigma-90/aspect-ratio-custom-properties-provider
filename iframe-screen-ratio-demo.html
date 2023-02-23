@@ -14,15 +14,17 @@
     </script>
     <style>
       :root {
+        --ratio-multiplier-min: var(--ratio-min-multiplier, 1rem);
+        --ratio-multiplier-max: var(--ratio-max-multiplier, -1rem);
         --aspect-ratio: var(--ar, 1);
         --screen-ratio: var(--sr, 1);
         --tolerance: 0.125;
         --aspect-ratio-threshold: calc((var(--tolerance) + 1 - var(--aspect-ratio)) * 100000);
         --screen-ratio-threshold: calc((var(--tolerance) + 1 - var(--screen-ratio)) * 100000);
-        --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * 1rem);
-        --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * -1rem);
-        --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * 1rem);
-        --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * -1rem);
+        --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-max));
+        --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-min));
+        --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-max));
+        --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-min));
         --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);
         --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);
       }
