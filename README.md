@@ -63,34 +63,40 @@ When initialized, the script will fill the style attribute of the root &lt;html&
   It would have to look like this then:
   
   ```css
-    :root {
-      --aspect-ratio: var(--ar, 1);
-      --screen-ratio: var(--sr, 1);
-      --tolerance: 0.125;
-      --aspect-ratio-threshold: calc((var(--tolerance) + 1 - var(--aspect-ratio)) * 100000);
-      --screen-ratio-threshold: calc((var(--tolerance) + 1 - var(--screen-ratio)) * 100000);
-      --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * 1rem);
-      --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * -1rem);
-      --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * 1rem);
-      --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * -1rem);
-      --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);
-      --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);
-    }
+      :root {
+        --ratio-multiplier-min: var(--ratio-min-multiplier, 1rem);
+        --ratio-multiplier-max: var(--ratio-max-multiplier, -1rem);
+        --aspect-ratio: var(--ar, 1);
+        --screen-ratio: var(--sr, 1);
+        --tolerance: 0.125;
+        --aspect-ratio-threshold: calc((var(--tolerance) + 1 - var(--aspect-ratio)) * 100000);
+        --screen-ratio-threshold: calc((var(--tolerance) + 1 - var(--screen-ratio)) * 100000);
+        --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-max));
+        --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-min));
+        --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-max));
+        --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-min));
+        --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);
+        --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);
+      }
   ```
   
   of course it can also be shortened a bit, if the results of each intermediary calculation step are not needed for other purposes. But treat this shortened notation with caution, it becomes a lot less readable and thus makes it harder to apply fine-tuning by adjusting the tolerance threshold value. Anyway, here it is:
   
   ```css
     :root {
-      --clamp-query-select-max-when-squared: calc(calc((1.125 - var(--ar, 1)) * 100000) * 1rem);
-      --clamp-query-select-min-when-squared: calc(calc((1.125 - var(--ar, 1)) * 100000) * -1rem);
-      --clamp-query-select-max-when-portrait: calc(calc((1.125 - var(--sr, 1)) * 100000) * 1rem);
-      --clamp-query-select-min-when-portrait: calc(calc((1.125 - var(--sr, 1)) * 100000) * -1rem);
+      --clamp-query-select-max-when-squared: calc(calc((1.125 - var(--ar, 1)) * 100000) * var(--ratio-max-multiplier, 1rem));
+      --clamp-query-select-min-when-squared: calc(calc((1.125 - var(--ar, 1)) * 100000) * var(--ratio-min-multiplier, 1rem));
+      --clamp-query-select-max-when-portrait: calc(calc((1.125 - var(--sr, 1)) * 100000) * var(--ratio-max-multiplier, 1rem));
+      --clamp-query-select-min-when-portrait: calc(calc((1.125 - var(--sr, 1)) * 100000) * var(--ratio-min-multiplier, 1rem));
       --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);
       --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);
     }
   ```
   
+  The multipliers in the first two rows are there to provide useful fallback values in case JS execution is disabled in the browser and thus the custom properties will never be generated. The second parameter in the var getter function defines the fallback and by always setting the multiplier to the opposite of what it should be when script execution works, we ensure that everything looks as intended by default. Otherwise, the styling applying to the defined case of a query custom property (which cannot be detected without scripting) would apply always.
+
+  Example: Reducing the size of a banner image when the screen gets close to being squared to make more room for text would look like this when all values are resolved: `height: clamp(25vh, calc(12500rem * var(--ratio-multiplier-min)), 50vh);` Since the first part of the  calculation will always be that fixed number due to no calculations taking place, the negative multiplier needed for the query to work would in this case turn the 12500rem negative and thus the banner would always be shown with the reduced size of 25vh instead of only when the aspect ratio is almost squared. So, by inverting the fallbacks we ensure that the default styling always applies and the special case then simply cannot be shown without JS.
+
   This piece of CSS should be placed very high up in the cascade, preferably right after any @-rules like imports and font definitions.
   
   The --clamp-query-* custom properties can then be used like in this example:
