@@ -8,6 +8,7 @@
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Aspect Ratio Clamp Query Example</title>
+    <script src="aspect-ratio-css-query-definitions-generator.js"></script>
     <script src="aspect-ratio-css-query-enabler.js"></script>
     <script type="text/javascript">
       initializeAspectRatioCssQueryEnabler(20, true, 0.25);
@@ -45,7 +46,7 @@
         align-items: center;
         border: dashed 0.0625rem #424242;
         padding: 2rem;
-        width: clamp(0%, var(--clamp-query-select-max-when-portrait), 100%);
+        width: clamp(0%, var(--clamp-query-select-max-when-viewport-content-is-portrait), 100%);
         min-width: 12%;
         max-width: 100%;
         resize: both;
@@ -160,7 +161,7 @@
           });
         });
       } catch(e) {
-        console.warn('Apparently you are using a very outdated browser. May I suggest that you do something about that?');
+        console.warn('Apparently you are using a very outdated browser. You might want to do something about that.');
       }
     </script>
   </body>

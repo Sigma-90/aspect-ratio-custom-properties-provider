@@ -28,14 +28,32 @@ function generateAspectRatioCustomPropertyRefresher(appRootRef) {
   return function () {
     const vhVal = window.innerHeight;
     const vwVal = window.innerWidth;
+    const chVal = document.body && document.body.clientHeight || 0;
+    const cwVal = document.body && document.body.clientWidth || 0;
+    const sBarH = vhVal - chVal;
+    const sBarW = vwVal - cwVal;
     appRootRef.style.setProperty('--ratio-min-multiplier', '-1rem');
     appRootRef.style.setProperty('--ratio-max-multiplier', '1rem');
     appRootRef.style.setProperty('--vh', vhVal * 0.01 + 'px');
     appRootRef.style.setProperty('--vw', vwVal * 0.01 + 'px');
+    appRootRef.style.setProperty('--vh-net', chVal * 0.01 + 'px');
+    appRootRef.style.setProperty('--vw-net', cwVal * 0.01 + 'px');
     appRootRef.style.setProperty('--sr', vwVal / vhVal + '');
     appRootRef.style.setProperty('--ar',Math.max(vwVal, vhVal) / Math.min(vwVal, vhVal) + '');
+    appRootRef.style.setProperty('--sr-net', cwVal / chVal + '');
+    appRootRef.style.setProperty('--ar-net', Math.max(cwVal, chVal) / Math.min(cwVal, chVal) + '');
+    appRootRef.style.setProperty('--sb-wd', sBarW + 'px');
+    appRootRef.style.setProperty('--sb-ht', sBarH + 'px');
+
+    const pageIsNotSupposedToScrollVertically = document.body && document.body.classList.contains('no-v-scroll');
+    const pageIsSupposedToScrollHorizontally = document.body && document.body.classList.contains('has-h-scroll');
+    // In case some of the calculated values are 0, we take this as an indicator that the initialization function might have been executed too early (usually before the DOM was ready) to determine the correct values, so we return false here in that case so the initialization function can use that information to trigger a recalculation.
+    // Note that a vertical scrollbar width is expected here by default while for the horizontal scrollbar height its absence is expected, because of statistics: Most pages will never show a horizontal scrollbar anyway, so it being present is an exception to the rule, while finding no vertical one might very well be an indicator that something went wrong, as most pages contain more content that what fits on a single screen. But with two control classes on the body tag a UI designer can define their intent more clearly so that the validation matches the expectation and thus reduce the risk of running a redundant recalculation. The downside to this is that mobile devices and browsers that use conditionally displayed overlay scrollbars will all toggle this recalculation every time even when it is specified with control classes that a scrollbar is expected, but in these cases it was determined to better be safe than sorry.
+    return vhVal > 0 && vwVal > 0 && chVal > 0 && cwVal > 0 && (pageIsNotSupposedToScrollVertically || sBarW > 0) && (!pageIsSupposedToScrollHorizontally || sBarH > 0);
   };
 }
+
+window.autoInitAspectRatioQueries = document.body && document.body.classList.contains('auto-init-aspect-ratio-queries');
 
 function initializeAspectRatioCssQueryEnabler(
   iDebouncingDetectionBufferTimeMs,
@@ -49,35 +67,49 @@ function initializeAspectRatioCssQueryEnabler(
     iDebouncingDetectionBufferTimeMs || 25,
     false
   );
-  refreshAspectRatioCustomPropertyCalculation();
+  const pageReady = refreshAspectRatioCustomPropertyCalculation();
+  const setReadyMsg = function(){
+    if (window.autoInitAspectRatioQueries) {
+      document.body.classList.remove('auto-init-aspect-ratio-queries');
+    }
+    document.body.classList.add('aspect-ratio-queries-enabled');
+  };
+
+  // Simplified DOM ready check
+  if (!/in/.test(document.readyState)) {
+    // DOM is ready
+    setReadyMsg();
+    // If we have reason to assume that not everything might have been ready from the start, we trigger a recalculation that happens after a few milliseconds to ensure that we end up with valid values from the beginning.
+    if (!pageReady) {
+      setTimeout(refreshAspectRatioCustomPropertyCalculation, 250);
+    }
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){
+      setReadyMsg();
+      if (!pageReady) {
+        refreshAspectRatioCustomPropertyCalculation();
+      }
+    });
+  }
+
   window.addEventListener('resize', onResizeDebounced);
   window.addEventListener('orientationChanged', onResizeDebounced);
 
   if (bGenerateSquareDetectionBaseStyling) {
-    let tolerance = fSquareDetectionToleranceWindow;
-    if (typeof fSquareDetectionToleranceWindow === 'undefined') {
-      tolerance = 0.125;
-    }
-    if (tolerance > 0.999) {
-      console.log('Invalid tolerance window. Make sure it is a decimal number smaller than 1.');
-      return;
-    }
-    // Using a template string here messes with some minifiers, so we concatenate it the classic way.
-    const rootStyle =
-      ":root {\n  --aspect-ratio: var(--ar, 1);\n  --screen-ratio: var(--sr, 1);\n  --ratio-multiplier-min: var(--ratio-min-multiplier, 1rem);  --ratio-multiplier-max: var(--ratio-max-multiplier, -1rem);  --tolerance: " +
-      tolerance +
-      ";\n  --aspect-ratio-threshold: calc((var(--tolerance) + 1 - var(--aspect-ratio)) * 100000);\n  --screen-ratio-threshold: calc((var(--tolerance) + 1 - var(--screen-ratio)) * 100000);\n" +
-      "  --clamp-query-select-max-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-max));\n  --clamp-query-select-min-when-squared: calc(var(--aspect-ratio-threshold) * var(--ratio-multiplier-min));\n" +
-      "  --clamp-query-select-max-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-max));\n  --clamp-query-select-min-when-portrait: calc(var(--screen-ratio-threshold) * var(--ratio-multiplier-min));\n" +
-      "  --clamp-query-select-min-when-landscape: var(--clamp-query-select-max-when-portrait);\n  --clamp-query-select-max-when-landscape: var(--clamp-query-select-min-when-portrait);\n}";
-    const styleBlock = document.createElement('style');
-    styleBlock.setAttribute('type', 'text/css');
-
-    if (styleBlock.styleSheet) {
-      styleBlock.styleSheet.cssText = rootStyle;
+    if (typeof generateAspectRatioCssQueryDefinitions === 'function') {
+      generateAspectRatioCssQueryDefinitions(fSquareDetectionToleranceWindow);
     } else {
-      styleBlock.appendChild(document.createTextNode(rootStyle));
+      console && console.error && console.error('CSS aspect ratio definition generation script not loaded, aborting.');
     }
-    document.getElementsByTagName('head')[0].appendChild(styleBlock);
+  }
+}
+
+if (window.autoInitAspectRatioQueries) {
+  const detectionBufferTime = document.body.hasAttribute('data-aspect-ratio-event-detection-buffer-time') ? Number(document.body.getAttribute('data-aspect-ratio-event-detection-buffer-time')) : 25;
+  const squareDetectionToleranceWindow = document.body.hasAttribute('data-aspect-ratio-square-detection-tolerance') ? parseFloat(document.body.getAttribute('data-aspect-ratio-square-detection-tolerance')) : null;
+  if (typeof squareDetectionToleranceWindow === 'number') {
+    initializeAspectRatioCssQueryEnabler(detectionBufferTime, true, squareDetectionToleranceWindow);
+  } else {
+    initializeAspectRatioCssQueryEnabler(detectionBufferTime);
   }
 }
