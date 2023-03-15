@@ -1,4 +1,4 @@
-function generateAspectRatioCssQueryDefinitions(fSquareDetectionToleranceWindow) {
+function generateAspectRatioCustomPropertyDefinitions(fSquareDetectionToleranceWindow) {
   let tolerance = fSquareDetectionToleranceWindow;
   if (typeof fSquareDetectionToleranceWindow === 'undefined') {
     tolerance = 0.125;

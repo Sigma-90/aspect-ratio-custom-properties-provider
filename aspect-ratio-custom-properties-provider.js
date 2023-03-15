@@ -53,9 +53,9 @@ function generateAspectRatioCustomPropertyRefresher(appRootRef) {
   };
 }
 
-window.autoInitAspectRatioQueries = document.body && document.body.classList.contains('auto-init-aspect-ratio-queries');
+window.autoInitAspectRatioQueries = document.body && document.body.classList.contains('auto-init-aspect-ratio-c-props-provider');
 
-function initializeAspectRatioCssQueryEnabler(
+function initializeAspectRatioCustomPropertiesProvider(
   iDebouncingDetectionBufferTimeMs,
   bGenerateSquareDetectionBaseStyling,
   fSquareDetectionToleranceWindow
@@ -70,9 +70,9 @@ function initializeAspectRatioCssQueryEnabler(
   const pageReady = refreshAspectRatioCustomPropertyCalculation();
   const setReadyMsg = function(){
     if (window.autoInitAspectRatioQueries) {
-      document.body.classList.remove('auto-init-aspect-ratio-queries');
+      document.body.classList.remove('auto-init-aspect-ratio-c-props-provider');
     }
-    document.body.classList.add('aspect-ratio-queries-enabled');
+    document.body.classList.add('aspect-ratio-c-props-available');
   };
 
   // Simplified DOM ready check
@@ -96,8 +96,8 @@ function initializeAspectRatioCssQueryEnabler(
   window.addEventListener('orientationChanged', onResizeDebounced);
 
   if (bGenerateSquareDetectionBaseStyling) {
-    if (typeof generateAspectRatioCssQueryDefinitions === 'function') {
-      generateAspectRatioCssQueryDefinitions(fSquareDetectionToleranceWindow);
+    if (typeof generateAspectRatioCustomPropertyDefinitions === 'function') {
+      generateAspectRatioCustomPropertyDefinitions(fSquareDetectionToleranceWindow);
     } else {
       console && console.error && console.error('CSS aspect ratio definition generation script not loaded, aborting.');
     }
@@ -108,8 +108,8 @@ if (window.autoInitAspectRatioQueries) {
   const detectionBufferTime = document.body.hasAttribute('data-aspect-ratio-event-detection-buffer-time') ? Number(document.body.getAttribute('data-aspect-ratio-event-detection-buffer-time')) : 25;
   const squareDetectionToleranceWindow = document.body.hasAttribute('data-aspect-ratio-square-detection-tolerance') ? parseFloat(document.body.getAttribute('data-aspect-ratio-square-detection-tolerance')) : null;
   if (typeof squareDetectionToleranceWindow === 'number') {
-    initializeAspectRatioCssQueryEnabler(detectionBufferTime, true, squareDetectionToleranceWindow);
+    initializeAspectRatioCustomPropertiesProvider(detectionBufferTime, true, squareDetectionToleranceWindow);
   } else {
-    initializeAspectRatioCssQueryEnabler(detectionBufferTime);
+    initializeAspectRatioCustomPropertiesProvider(detectionBufferTime);
   }
 }
